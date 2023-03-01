@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/UshakovDmitry/express-mesto-gha/issues"
   },
-  "homepage": "https://github.com/UshakovDmitry/express-mesto-gha#readme"
+  "homepage": "https://github.com/UshakovDmitry/express-mesto-gha#readme",
+  "dependencies": {
+    "eslint": "^8.35.0"
+  }
 }
