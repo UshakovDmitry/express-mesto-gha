@@ -1,5 +1,7 @@
-const mongoose = require('mongoose');
+// eslint-disable-next-line import/no-extraneous-dependencies
+// const mongoose = require('mongoose');
 
+// eslint-disable-next-line no-undef
 const cardSchema = new Schema(
   {
     name: {
@@ -16,7 +18,7 @@ const cardSchema = new Schema(
       required: true,
     },
     owner: {
-   
+
       ref: 'user',
       required: true,
     },
