@@ -22,10 +22,10 @@
     "eslint": "^8.35.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "express": "^4.18.2",
-    "mongoose": "^7.0.0"
+    "express": "^4.18.2"
   },
   "devDependencies": {
+    "mongoose": "^7.0.0",
     "nodemon": "^2.0.20"
   }
 }
