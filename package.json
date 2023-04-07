@@ -1,7 +1,7 @@
 {
   "name": "express-mesto-gha",
   "version": "1.0.0",
-  "description": "[![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml) # Проект Mesto фронтенд + бэкенд",
+  "description": "Mesto backend",
   "main": "index.js",
   "scripts": {
     "lint": "npx eslint",
@@ -19,13 +19,14 @@
   },
   "homepage": "https://github.com/UshakovDmitry/express-mesto-gha",
   "dependencies": {
+    "body-parser": "^1.20.2",
     "eslint": "^8.35.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "mongoose": "^7.0.3"
   },
   "devDependencies": {
-    "mongoose": "^7.0.0",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.22"
   }
 }

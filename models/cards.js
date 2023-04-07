@@ -1,7 +1,5 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-// const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-// eslint-disable-next-line no-undef
 const cardSchema = new Schema(
   {
     name: {
@@ -12,29 +10,22 @@ const cardSchema = new Schema(
     },
     link: {
       type: String,
-      validate: {
-
-      },
       required: true,
     },
     owner: {
-
-      ref: 'user',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
       required: true,
     },
     likes: {
-      type: [
-        {
-
-        },
-      ],
+      type: mongoose.Schema.Types.ObjectId,
       default: [],
     },
     createdAt: {
-
+      type: Date,
+      default: Date.now,
     },
   },
-  { versionKey: false },
 );
 
-export default model('card', cardSchema);
+export default mongoose.model("card", cardSchema);
