@@ -7,7 +7,8 @@ const { PORT = 3000 } = process.env;
 const app = express();
 
 mongoose.connect(
-  `mongodb+srv://ushakovsky95:${PASSWORD}.nj8wwnn.mongodb.net/`,
+  // `mongodb+srv://ushakovsky95:${PASSWORD}.nj8wwnn.mongodb.net/`,
+  "mongodb://localhost:27017/mestodb",
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
