@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const User = require('../models/users.js');
 const {
   ERROR_NOT_FOUND,
   errorsHandler,

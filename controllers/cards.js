@@ -1,4 +1,4 @@
-const Card = require('../models/card');
+const Card = require('../models/cards.js');
 const {
   errorsHandler, ERROR_NOT_FOUND,
 } = require('../utils/utils');

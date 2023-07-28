@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const { ERROR_NOT_FOUND,PASSWORD } = require("./utils/utils");
+const { ERROR_NOT_FOUND,PASSWORD } = require("./utils/utils.js");
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -14,6 +14,7 @@ mongoose.connect(
     useUnifiedTopology: true,
   }
 );
+
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
