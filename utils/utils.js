@@ -1,7 +1,6 @@
 const ERROR_BAD_REQUEST = 400;
 const ERROR_NOT_FOUND = 404;
 const ERROR_INTERNAL_SERVER = 500;
-const PASSWORD = '9fwSwMbB3bsTGLbN@cluster2';
 
 const errorsHandler = (err, res) => {
   if (err.name === "CastError") {
@@ -24,6 +23,5 @@ module.exports = {
   ERROR_BAD_REQUEST,
   ERROR_NOT_FOUND,
   ERROR_INTERNAL_SERVER,
-  PASSWORD,
   errorsHandler,
 };
