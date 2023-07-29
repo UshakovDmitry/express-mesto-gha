@@ -33,4 +33,4 @@ app.use((req, res) =>
   res.status(ERROR_NOT_FOUND).send({ message: "Страница не найдена" })
 );
 
-app.listen(PORT);
+app.listen(PORT, () => console.log(`Приложение запущено на порту ${PORT}`));
