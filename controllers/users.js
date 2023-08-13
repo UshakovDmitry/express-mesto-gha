@@ -27,7 +27,7 @@ module.exports.createUser = (req, res, next) => {
       about: req.body.about,
       avatar: req.body.avatar,
     }))
-    .then((user) => res.status(200).send({
+    .then((user) => res.status(201).send({
       name: user.name,
       about: user.about,
       avatar: user.avatar,
@@ -77,14 +77,14 @@ module.exports.getCurrentUser = (req, res, next) => {
     }
 
     // возвращаем пользователя, если он есть
-    return res.status(200).send(user);
+    return res.status(201).send(user);
   }).catch(next);
 };
 
 // Получение пользователей
 module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
+    .then((users) => res.status(201).send(users))
     .catch(next);
 };
 
@@ -95,7 +95,7 @@ module.exports.getUserById = (req, res, next) => {
       if (!user) {
         return next(new NotFoundError('Пользователь не найден'));
       }
-      return res.status(200).send(user);
+      return res.status(201).send(user);
     })
     .catch(next);
 };
@@ -108,7 +108,7 @@ module.exports.updateUser = (req, res, next) => {
     { name, about },
     { new: true, runValidators: true },
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Неверный тип данных.'));
@@ -125,7 +125,7 @@ module.exports.updateAvatar = (req, res, next) => {
     { avatar },
     { new: true, runValidators: true },
   )
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.status(201).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Неверная ссылка'));
