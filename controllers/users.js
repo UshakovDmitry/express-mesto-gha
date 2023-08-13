@@ -1,21 +1,27 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const ErrorConflict = require('../errors/ErrorConflict');
-
-const { ERROR_NOT_FOUND, errorsHandler } = require('../utils/utils');
+const ConflictError = require('../errors/ConflictError');
+const BadRequestError = require('../errors/BadRequestError');
+const NotFoundError = require('../errors/NotFoundError');
 
 // Создание нового пользователя
 module.exports.createUser = (req, res, next) => {
-  User.findOne(req.body.email).then((user) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    throw new BadRequestError('Неправильный логин или пароль.');
+  }
+
+  return User.findOne({ email }).then((user) => {
     if (user) {
-      throw new ErrorConflict(`Пользователь с ${req.body.email} уже существует`);
+      throw new ConflictError(`Пользователь с ${email} уже существует.`);
     }
 
-    return bcrypt.hash(req.body.password, 10);
+    return bcrypt.hash(password, 10);
   })
     .then((hash) => User.create({
-      email: req.body.email,
+      email,
       password: hash,
       name: req.body.name,
       about: req.body.about,
@@ -28,29 +34,37 @@ module.exports.createUser = (req, res, next) => {
       _id: user._id,
       email: user.email,
     }))
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Неверные данные о пользователе или неверная ссылка на аватар.'));
+      }
+      return next(err);
+    });
 };
 
 // Аутентификация пользователя
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      // создаст токен
+      // проверим существует ли такой email или пароль
+      if (!user || !password) {
+        return next(new BadRequestError('Неверный email или пароль.'));
+      }
+
+      // создадим токен
       const token = jwt.sign(
         { _id: user._id },
+        'some-secret-key',
         {
           expiresIn: '7d',
         },
       );
 
-      // вернёт токен
-      res.send({ token });
+      // вернём токен
+      return res.send({ token });
     })
-    .catch((err) => {
-      // возвращает ошибку аутентификации
-      res.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
 
 // возвращает информацию о текущем пользователе
@@ -59,39 +73,35 @@ module.exports.getCurrentUser = (req, res, next) => {
   User.findById(_id).then((user) => {
     // проверяем, есть ли пользователь с таким id
     if (!user) {
-      return Promise.reject(new Error('Пользователь не найден.'));
+      return next(new NotFoundError('Пользователь не найден.'));
     }
 
-    // возвращает пользователя, если он есть
+    // возвращаем пользователя, если он есть
     return res.status(200).send(user);
-  }).catch((err) => {
-    next(err);
-  });
+  }).catch(next);
 };
 
-// Полученет пользователей
-module.exports.getUsers = (req, res) => {
+// Получение пользователей
+module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch((err) => errorsHandler(err, res));
+    .catch(next);
 };
 
 // Получение пользователя по его id
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res
-          .status(ERROR_NOT_FOUND)
-          .send({ message: 'Пользователь не найден' });
+        return next(new NotFoundError('Пользователь не найден'));
       }
       return res.status(200).send(user);
     })
-    .catch((err) => errorsHandler(err, res));
+    .catch(next);
 };
 
 // Обновление информации о пользователе
-module.exports.updateUser = (req, res) => {
+module.exports.updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -99,11 +109,16 @@ module.exports.updateUser = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((user) => res.status(200).send(user))
-    .catch((err) => errorsHandler(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Неверный тип данных.'));
+      }
+      return next(err);
+    });
 };
 
 // Обновление аватара пользователя
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -111,5 +126,10 @@ module.exports.updateAvatar = (req, res) => {
     { new: true, runValidators: true },
   )
     .then((user) => res.status(200).send(user))
-    .catch((err) => errorsHandler(err, res));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Неверная ссылка'));
+      }
+      return next(err);
+    });
 };
