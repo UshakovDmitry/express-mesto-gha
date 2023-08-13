@@ -11,12 +11,12 @@ const errorsHandler = (err, res) => {
   if (err.name === "ValidationError") {
     return res
       .status(ERROR_BAD_REQUEST)
-      .send({ message: "Переданы некорректные данные." });
+      .send({ message: "Переданы некорректные данные" });
   }
 
   return res
     .status(ERROR_INTERNAL_SERVER)
-    .send({ message: `Ошибка сервера ${ERROR_INTERNAL_SERVER}` });
+    .send({ message: `Ошибка сервера: ${ERROR_INTERNAL_SERVER}` });
 };
 
 module.exports = {
