@@ -3,15 +3,15 @@ const ERROR_NOT_FOUND = 404;
 const ERROR_INTERNAL_SERVER = 500;
 
 const errorsHandler = (err, res) => {
-  if (err.name === "CastError") {
+  if (err.name === 'CastError') {
     return res
       .status(ERROR_BAD_REQUEST)
       .send({ message: `Ошибка ${ERROR_BAD_REQUEST}.` });
   }
-  if (err.name === "ValidationError") {
+  if (err.name === 'ValidationError') {
     return res
       .status(ERROR_BAD_REQUEST)
-      .send({ message: "Переданы некорректные данные" });
+      .send({ message: 'Переданы некорректные данные' });
   }
 
   return res
