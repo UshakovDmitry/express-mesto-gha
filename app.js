@@ -8,7 +8,7 @@ const { createUser, login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
 const NotFoundError = require('./errors/NotFoundError');
-const { signUp, signIn } = require('./middlewares/validations');
+const { signUp, signIn } = require('./middlewares/joi-validations');
 
 const { PORT = 3000 } = process.env;
 const app = express();
