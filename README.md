@@ -8,4 +8,6 @@ Node.js веб-приложение, которое использует Express
 - Express.js
 - MongoDB
 - Mongoose
+- Joi (валидация)
+- Celebrate (валидация)
 

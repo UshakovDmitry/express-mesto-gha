@@ -1,31 +1,28 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const ConflictError = require('../errors/ConflictError');
+// const ConflictError = require('../errors/ConflictError');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 
 // Создание нового пользователя
 module.exports.createUser = (req, res, next) => {
-  const { email, password } = req.body;
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
 
   if (!email || !password) {
     throw new BadRequestError('Неправильный логин или пароль.');
   }
 
-  return User.findOne({ email }).then((user) => {
-    if (user) {
-      throw new ConflictError(`Пользователь с ${email} уже существует.`);
-    }
-
-    return bcrypt.hash(password, 10);
-  })
+  bcrypt
+    .hash(password, 10)
     .then((hash) => User.create({
       email,
       password: hash,
-      name: req.body.name,
-      about: req.body.about,
-      avatar: req.body.avatar,
+      name,
+      about,
+      avatar,
     }))
     .then((user) => res.status(201).send({
       name: user.name,
@@ -36,7 +33,11 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Неверные данные о пользователе или неверная ссылка на аватар.'));
+        next(
+          new BadRequestError(
+            'Неверные данные о пользователе или неверная ссылка на аватар.',
+          ),
+        );
       }
       return next(err);
     });
@@ -53,13 +54,9 @@ module.exports.login = (req, res, next) => {
       }
 
       // создадим токен
-      const token = jwt.sign(
-        { _id: user._id },
-        'some-secret-key',
-        {
-          expiresIn: '7d',
-        },
-      );
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+        expiresIn: '7d',
+      });
 
       // вернём токен
       return res.send({ token });
@@ -70,15 +67,17 @@ module.exports.login = (req, res, next) => {
 // возвращает информацию о текущем пользователе
 module.exports.getCurrentUser = (req, res, next) => {
   const { _id } = req.user;
-  User.findById(_id).then((user) => {
-    // проверяем, есть ли пользователь с таким id
-    if (!user) {
-      return next(new NotFoundError('Пользователь не найден.'));
-    }
+  User.findById(_id)
+    .then((user) => {
+      // проверяем, есть ли пользователь с таким id
+      if (!user) {
+        return next(new NotFoundError('Пользователь не найден.'));
+      }
 
-    // возвращаем пользователя, если он есть
-    return res.status(201).send(user);
-  }).catch(next);
+      // возвращаем пользователя, если он есть
+      return res.status(200).send(user);
+    })
+    .catch(next);
 };
 
 // Получение пользователей
@@ -95,7 +94,7 @@ module.exports.getUserById = (req, res, next) => {
       if (!user) {
         return next(new NotFoundError('Пользователь не найден'));
       }
-      return res.status(201).send(user);
+      return res.status(200).send(user);
     })
     .catch(next);
 };
@@ -108,10 +107,10 @@ module.exports.updateUser = (req, res, next) => {
     { name, about },
     { new: true, runValidators: true },
   )
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Неверный тип данных.'));
+        return next(new BadRequestError('Неверный тип данных.'));
       }
       return next(err);
     });
@@ -125,10 +124,10 @@ module.exports.updateAvatar = (req, res, next) => {
     { avatar },
     { new: true, runValidators: true },
   )
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Неверная ссылка'));
+        return next(new BadRequestError('Неверная ссылка'));
       }
       return next(err);
     });
