@@ -1,30 +1,33 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-// const ConflictError = require('../errors/ConflictError');
+const ConflictError = require('../errors/ConflictError');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 
 // Создание нового пользователя
 module.exports.createUser = (req, res, next) => {
-  const {
-    email, password, name, about, avatar,
-  } = req.body;
+  const { email, password } = req.body;
 
   if (!email || !password) {
     throw new BadRequestError('Неправильный логин или пароль.');
   }
 
-  bcrypt
-    .hash(password, 10)
+  return User.findOne({ email }).then((user) => {
+    if (user) {
+      throw new ConflictError(`Пользователь с ${email} уже существует.`);
+    }
+
+    return bcrypt.hash(password, 10);
+  })
     .then((hash) => User.create({
       email,
       password: hash,
-      name,
-      about,
-      avatar,
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
     }))
-    .then((user) => res.status(201).send({
+    .then((user) => res.status(200).send({
       name: user.name,
       about: user.about,
       avatar: user.avatar,
@@ -33,16 +36,11 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BadRequestError(
-            'Неверные данные о пользователе или неверная ссылка на аватар.',
-          ),
-        );
+        next(new BadRequestError('Неверные данные о пользователе или неверная ссылка на аватар.'));
       }
       return next(err);
     });
 };
-
 // Аутентификация пользователя
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
