@@ -1,3 +1,4 @@
+/* eslint-disable consistent-return */
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
@@ -6,41 +7,42 @@ const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 
 // Создание нового пользователя
-module.exports.createUser = (req, res, next) => {
-  const { email, password } = req.body;
+module.exports.createUser = async (req, res, next) => {
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
 
-  if (!email || !password) {
-    throw new BadRequestError('Неправильный логин или пароль.');
-  }
-
-  return User.findOne({ email }).then((user) => {
-    if (user) {
-      throw new ConflictError(`Пользователь с ${email} уже существует.`);
-    }
-
-    return bcrypt.hash(password, 10);
-  })
-    .then((hash) => User.create({
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
       email,
-      password: hash,
-      name: req.body.name,
-      about: req.body.about,
-      avatar: req.body.avatar,
-    }))
-    .then((user) => res.status(200).send({
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-      _id: user._id,
-      email: user.email,
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError('Неверные данные о пользователе или неверная ссылка на аватар.'));
-      }
-      return next(err);
+      password: hashedPassword,
+      name,
+      about,
+      avatar,
     });
+
+    res.status(200).send({
+      message: 'Пользователь успешно зарегистрирован.',
+      user: {
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return next(new BadRequestError('Неверные данные о пользователе или неверная ссылка на аватар.'));
+    }
+    if (error.code === 11000) {
+      return next(new ConflictError('Пользователь с таким email уже существует.'));
+    }
+    next(error);
+  }
 };
+
 // Аутентификация пользователя
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;

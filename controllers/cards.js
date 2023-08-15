@@ -24,23 +24,26 @@ module.exports.createCard = (req, res, next) => {
     });
 };
 // Удаление карточки
-module.exports.deleteCard = (req, res, next) => {
-  Card.findById(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        return next(new NotFoundError('Карточка не найдена.'));
-      }
+module.exports.deleteCard = async (req, res, next) => {
+  try {
+    const card = await Card.findById(req.params.cardId);
+    if (!card) {
+      return next(new NotFoundError('Карточка не найдена.'));
+    }
 
-      if (card.owner.valueOf().toString() !== req.user._id) {
-        return next(new ForbiddenError('Нельзя удалить чужую карточку!'));
-      }
+    if (card.owner.toString() !== req.user._id) {
+      return next(new ForbiddenError('Нельзя удалить чужую карточку!'));
+    }
 
-      card
-        .remove()
-        .then((deletedCard) => res.status(201).send(deletedCard))
-        .catch(next);
-    })
-    .catch(next);
+    const result = await card.deleteOne();
+    if (result.deletedCount === 0) {
+      return next(new NotFoundError('Карточка не найдена.'));
+    }
+
+    res.status(200).send({ message: 'Карточка успешно удалена.' });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // Поставить лайк
