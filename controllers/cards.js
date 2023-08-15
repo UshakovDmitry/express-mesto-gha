@@ -58,20 +58,18 @@ module.exports.likeCard = (req, res, next) => {
     })
     .catch(next);
 };
-// Удалить лайк
+// Удаление лайка у карточки
 module.exports.dislikeCard = (req, res, next) => {
-  Card.findById(
+  Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((card) => {
-      if (!card) {
-        return next(
-          new NotFoundError('Карточка не найдена. Лайк не удалось убрать.'),
-        );
+    .then((updatedCard) => {
+      if (!updatedCard) {
+        throw new NotFoundError('Карточка не найдена. Лайк не удалось убрать.');
       }
-      return res.status(200).send(card);
+      return res.status(200).send(updatedCard);
     })
     .catch(next);
 };
