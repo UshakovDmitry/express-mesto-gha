@@ -18,10 +18,10 @@ router.get('/users', getUsers);
 
 router.get('/users/me', getCurrentUser);
 
-router.get('/users/:userId', userIdValidation(), getUserById);
+router.get('/users/:userId', userIdValidation, getUserById);
 
-router.patch('/users/me', updateUserValidation(), updateUser);
+router.patch('/users/me', updateUserValidation, updateUser);
 
-router.patch('/users/me/avatar', updateAvatarValidation(), updateAvatar);
+router.patch('/users/me/avatar', updateAvatarValidation, updateAvatar);
 
 module.exports = router;
