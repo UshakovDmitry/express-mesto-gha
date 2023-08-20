@@ -6,6 +6,8 @@ const ConflictError = require('../errors/ConflictError');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 // Создание нового пользователя
 module.exports.createUser = async (req, res, next) => {
   const {
@@ -48,15 +50,14 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      // проверим существует ли такой email или пароль
-      if (!user || !password) {
-        return next(new BadRequestError('Неверный email или пароль.'));
-      }
-
       // создадим токен
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
-        expiresIn: '7d',
-      });
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
+        {
+          expiresIn: '7d',
+        },
+      );
 
       // вернём токен
       return res.send({ token });

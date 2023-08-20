@@ -1,13 +1,19 @@
+/* eslint-disable no-console */
 const errorHandler = (err, req, res, next) => {
-  // eslint-disable-next-line no-console
-  console.log(err.stack || err);
+  console.error(err.stack || err);
+
   const status = err.statusCode || 500;
-  const message = err.message || 'На сервере произошла ошибка.';
+
+  let message = 'Произошла ошибка на сервере. Мы уже работаем над ее решением.';
+  if (status !== 500) {
+    message = err.message;
+  }
 
   res.status(status).send({
-    err,
+    error: 'Ошибка сервера',
     message,
   });
+
   next();
 };
 
